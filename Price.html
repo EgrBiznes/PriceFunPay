@@ -1,401 +1,567 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор партий товара</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e6e6e6;
-            min-height: 100vh;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(30, 30, 46, 0.9);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #4a4a6d;
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #6ee7b7;
-            font-size: 2.2rem;
-            text-shadow: 0 0 10px rgba(110, 231, 183, 0.3);
-        }
-        
-        .params {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-            background: rgba(40, 40, 60, 0.7);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #4a4a6d;
-        }
-        
-        .param-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        label {
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #a5b4fc;
-            font-size: 0.95rem;
-        }
-        
-        input {
-            padding: 12px 15px;
-            background: rgba(20, 20, 35, 0.8);
-            border: 2px solid #4a4a6d;
-            border-radius: 8px;
-            color: #e6e6e6;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: #6ee7b7;
-            box-shadow: 0 0 0 3px rgba(110, 231, 183, 0.2);
-        }
-        
-        .input-section {
-            margin-bottom: 25px;
-        }
-        
-        .input-section h3 {
-            color: #a5b4fc;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-        
-        .tonnage-input {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .tonnage-input input {
-            flex: 1;
-        }
-        
-        button {
-            background: linear-gradient(to right, #6ee7b7, #3b82f6);
-            color: #0f172a;
-            border: none;
-            padding: 14px 25px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 15px rgba(59, 130, 246, 0.4);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .result {
-            background: rgba(40, 40, 60, 0.7);
-            border-radius: 12px;
-            padding: 25px;
-            border: 1px solid #4a4a6d;
-            margin-top: 30px;
-            display: none;
-        }
-        
-        .result.active {
-            display: block;
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .calc-title {
-            color: #6ee7b7;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .steps {
-            margin-bottom: 20px;
-            padding-left: 20px;
-        }
-        
-        .steps li {
-            margin-bottom: 10px;
-            padding-left: 10px;
-        }
-        
-        .summary {
-            background: rgba(20, 20, 35, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 5px solid #6ee7b7;
-        }
-        
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #4a4a6d;
-        }
-        
-        .summary-item:last-child {
-            border-bottom: none;
-        }
-        
-        .highlight {
-            color: #6ee7b7;
-            font-weight: 700;
-        }
-        
-        .hint {
-            font-size: 0.9rem;
-            color: #94a3b8;
-            text-align: center;
-            margin-top: 15px;
-            font-style: italic;
-        }
-        
-        .profit-16 {
-            color: #fbbf24;
-            font-weight: 700;
-        }
-        
-        .profit-minus-3 {
-            color: #f87171;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-            
-            .params {
-                grid-template-columns: 1fr;
-            }
-            
-            .tonnage-input {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Калькулятор партий товара</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #13161d;
+    --surface2: #1c202b;
+    --border: rgba(255,255,255,0.07);
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --accent3: #4e9eff;
+    --text: #e8ecf4;
+    --muted: #636b80;
+    --gold: #ffc94d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .header-icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 16px rgba(0,229,160,0.5));
+  }
+
+  .header h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+  }
+
+  .header p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.2s; }
+
+  .card-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .field-full {
+    grid-column: 1 / -1;
+  }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-wrap .unit {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--muted);
+    pointer-events: none;
+    font-weight: 600;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 40px 12px 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,160,0.12);
+  }
+
+  /* Tons row */
+  .tons-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .tons-row input {
+    flex: 1;
+    font-size: 18px;
+  }
+
+  .btn-calc {
+    background: linear-gradient(135deg, var(--accent) 0%, #00c488 100%);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 20px rgba(0,229,160,0.35);
+    letter-spacing: -0.3px;
+  }
+
+  .btn-calc:active {
+    transform: scale(0.96);
+    box-shadow: 0 2px 10px rgba(0,229,160,0.2);
+  }
+
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  /* Result card */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid rgba(0,229,160,0.15);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
+    display: none;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .result-card.visible { display: block; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .result-header .icon { font-size: 22px; }
+
+  .result-header h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* Formula lines */
+  .formula-section {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .formula-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .formula-line:last-child { border-bottom: none; }
+
+  .formula-line .label {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .formula-line .value {
+    font-weight: 700;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* Summary table */
+  .summary {
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    background: rgba(0,229,160,0.04);
+    overflow: hidden;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .summary-row:last-child { border-bottom: none; }
+
+  .summary-row .s-label { color: var(--muted); font-size: 12px; }
+
+  .summary-row .s-val {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .s-val.green { color: var(--accent); }
+  .s-val.orange { color: var(--accent2); }
+  .s-val.gold { color: var(--gold); }
+  .s-val.blue { color: var(--accent3); }
+  .s-val.white { color: var(--text); }
+
+  /* Saved indicator */
+  .saved-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .saved-badge.show { opacity: 1; }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Glow pulse on result */
+  @keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,160,0); }
+    50% { box-shadow: 0 0 20px 4px rgba(0,229,160,0.15); }
+  }
+
+  .result-card.visible {
+    animation: fadeUp 0.4s ease both, glowPulse 2s ease 0.4s;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 360px) {
+    .header h1 { font-size: 17px; }
+    .fields-grid { grid-template-columns: 1fr; }
+    .field-full { grid-column: 1; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>💰 Калькулятор партий товара</h1>
-        
-        <div class="params">
-            <div class="param-group">
-                <label for="pricePerTon">Цена за тонну (₽/т)</label>
-                <input type="number" id="pricePerTon" step="0.01" value="121">
-            </div>
-            
-            <div class="param-group">
-                <label for="surcharge">Надбавки на партию (₽)</label>
-                <input type="number" id="surcharge" step="0.01" value="68">
-            </div>
-            
-            <div class="param-group">
-                <label for="profit">Прибыль (%)</label>
-                <input type="number" id="profit" step="0.01" value="21">
-            </div>
+<div class="wrapper">
+
+  <div class="header">
+    <span class="header-icon">💰</span>
+    <h1>Калькулятор<br>партий товара</h1>
+    <p>Настройки сохраняются автоматически</p>
+  </div>
+
+  <!-- Settings card -->
+  <div class="card">
+    <div class="card-title">⚙️ Параметры расчёта</div>
+    <div class="fields-grid">
+      <div class="field">
+        <label>Цена за тонну</label>
+        <div class="input-wrap">
+          <input type="number" id="pricePerTon" value="100" min="0" step="0.01" placeholder="100">
+          <span class="unit">₽/т</span>
         </div>
-        
-        <div class="input-section">
-            <h3>Введите количество тонн</h3>
-            <div class="tonnage-input">
-                <input type="number" id="tonnage" step="0.01" placeholder="Например: 2.5 или 10">
-                <button id="calculateBtn">Рассчитать</button>
-            </div>
-            <p class="hint">Можно вводить дробные значения (например: 2.28, 3.95, 10.5)</p>
+      </div>
+      <div class="field">
+        <label>Надбавки</label>
+        <div class="input-wrap">
+          <input type="number" id="surcharge" value="72" min="0" step="0.01" placeholder="72">
+          <span class="unit">₽</span>
         </div>
-        
-        <div class="result" id="result">
-            <h2 class="calc-title" id="calcTitle">📊 Расчёт для <span id="tonnageValue">0</span> тонн:</h2>
-            
-            <ul class="steps">
-                <li><strong>Себестоимость:</strong> (<span id="priceValue">0</span> × <span id="tonnageValue2">0</span>) + <span id="surchargeValue">0</span> = <span id="costValue">0</span> ₽</li>
-                <li><strong>Итоговая цена (+<span id="profitValue">0</span>%):</strong> <span id="costValue2">0</span> × <span class="highlight">1.<span id="profitMultiplier">0</span></span> = <span id="finalPriceValue">0</span> ₽</li>
-                <li><strong>Чистая прибыль (+<span id="profitValue2">0</span>%):</strong> <span id="finalPriceValue2">0</span> − <span id="costValue3">0</span> = <span id="netProfitValue">0</span> ₽</li>
-                <li><strong>Цена с +16.09% к итоговой:</strong> <span id="finalPriceValue3">0</span> × <span class="highlight">1.1609</span> = <span id="extraPriceValue" class="profit-16">0</span> ₽</li>
-            </ul>
-            
-            <div class="summary">
-                <div class="summary-item">
-                    <span>Себестоимость:</span>
-                    <span id="summaryCost">0 ₽</span>
-                </div>
-                <div class="summary-item">
-                    <span>Итоговая цена (+<span id="summaryProfit">0</span>%):</span>
-                    <span id="summaryFinalPrice" class="highlight">0 ₽</span>
-                </div>
-                <div class="summary-item">
-                    <span>Чистая прибыль (+<span id="summaryProfit2">0</span>%):</span>
-                    <span id="summaryNetProfit" class="highlight">0 ₽</span>
-                </div>
-                <div class="summary-item">
-                    <span>Чистая прибыль (-3%):</span>
-                    <span id="summaryNetProfitMinus3" class="profit-minus-3">0 ₽</span>
-                </div>
-                <div class="summary-item">
-                    <span><strong>Цена с +16.09% к итоговой:</strong></span>
-                    <span id="summaryExtraPrice" class="profit-16">0 ₽</span>
-                </div>
-            </div>
+      </div>
+      <div class="field field-full">
+        <label>Прибыль</label>
+        <div class="input-wrap">
+          <input type="number" id="profit" value="21" min="0" step="0.01" placeholder="21">
+          <span class="unit">%</span>
         </div>
+      </div>
+    </div>
+    <span class="saved-badge" id="savedBadge">✓ Сохранено</span>
+  </div>
+
+  <!-- Tons card -->
+  <div class="card">
+    <div class="card-title">📦 Количество тонн</div>
+    <div class="tons-row">
+      <div class="input-wrap" style="flex:1">
+        <input type="number" id="tons" value="1000" min="0" step="0.01" placeholder="1000">
+        <span class="unit">т</span>
+      </div>
+      <button class="btn-calc" onclick="calculate()">Рассчитать</button>
+    </div>
+    <div class="hint">Можно вводить дробные значения (например: 2.28, 3.95, 10.5)</div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <span class="icon">📊</span>
+      <h2 id="resultTitle">Расчёт для 1 000.00 тонн</h2>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const pricePerTonInput = document.getElementById('pricePerTon');
-            const surchargeInput = document.getElementById('surcharge');
-            const profitInput = document.getElementById('profit');
-            const tonnageInput = document.getElementById('tonnage');
-            const calculateBtn = document.getElementById('calculateBtn');
-            const resultDiv = document.getElementById('result');
-            
-            const tonnageValue = document.getElementById('tonnageValue');
-            const tonnageValue2 = document.getElementById('tonnageValue2');
-            const priceValue = document.getElementById('priceValue');
-            const surchargeValue = document.getElementById('surchargeValue');
-            const costValue = document.getElementById('costValue');
-            const costValue2 = document.getElementById('costValue2');
-            const costValue3 = document.getElementById('costValue3');
-            const profitValue = document.getElementById('profitValue');
-            const profitValue2 = document.getElementById('profitValue2');
-            const profitMultiplier = document.getElementById('profitMultiplier');
-            const finalPriceValue = document.getElementById('finalPriceValue');
-            const finalPriceValue2 = document.getElementById('finalPriceValue2');
-            const finalPriceValue3 = document.getElementById('finalPriceValue3');
-            const netProfitValue = document.getElementById('netProfitValue');
-            const extraPriceValue = document.getElementById('extraPriceValue');
-            
-            const summaryCost = document.getElementById('summaryCost');
-            const summaryProfit = document.getElementById('summaryProfit');
-            const summaryProfit2 = document.getElementById('summaryProfit2');
-            const summaryFinalPrice = document.getElementById('summaryFinalPrice');
-            const summaryNetProfit = document.getElementById('summaryNetProfit');
-            const summaryNetProfitMinus3 = document.getElementById('summaryNetProfitMinus3');
-            const summaryExtraPrice = document.getElementById('summaryExtraPrice');
-            const calcTitle = document.getElementById('calcTitle');
-            
-            function formatNumber(num) {
-                return Number(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-            }
-            
-            function calculate() {
-                const pricePerTon = parseFloat(pricePerTonInput.value) || 0;
-                const surcharge = parseFloat(surchargeInput.value) || 0;
-                const profit = parseFloat(profitInput.value) || 0;
-                const tonnage = parseFloat(tonnageInput.value) || 0;
-                
-                if (tonnage <= 0) {
-                    alert('Введите корректное количество тонн');
-                    return;
-                }
-                
-                // Основные расчеты
-                const cost = pricePerTon * tonnage + surcharge;
-                const profitMultiplierValue = 1 + profit / 100;
-                const finalPrice = cost * profitMultiplierValue;
-                const netProfit = finalPrice - cost;
-                
-                // Дополнительные расчеты
-                const extraPrice = finalPrice * 1.1609;
-                const netProfitMinus3 = netProfit * 0.97;
-                
-                // Обновление значений в расчете
-                tonnageValue.textContent = formatNumber(tonnage);
-                tonnageValue2.textContent = formatNumber(tonnage);
-                priceValue.textContent = formatNumber(pricePerTon);
-                surchargeValue.textContent = formatNumber(surcharge);
-                costValue.textContent = formatNumber(cost);
-                costValue2.textContent = formatNumber(cost);
-                costValue3.textContent = formatNumber(cost);
-                
-                profitValue.textContent = profit.toFixed(2);
-                profitValue2.textContent = profit.toFixed(2);
-                profitMultiplier.textContent = profit.toFixed(0).padStart(2, '0');
-                
-                finalPriceValue.textContent = formatNumber(finalPrice);
-                finalPriceValue2.textContent = formatNumber(finalPrice);
-                finalPriceValue3.textContent = formatNumber(finalPrice);
-                
-                netProfitValue.textContent = formatNumber(netProfit);
-                extraPriceValue.textContent = formatNumber(extraPrice);
-                
-                // Обновление итогов
-                summaryCost.textContent = formatNumber(cost) + ' ₽';
-                summaryProfit.textContent = profit.toFixed(2);
-                summaryProfit2.textContent = profit.toFixed(2);
-                summaryFinalPrice.textContent = formatNumber(finalPrice) + ' ₽';
-                summaryNetProfit.textContent = formatNumber(netProfit) + ' ₽';
-                summaryNetProfitMinus3.textContent = formatNumber(netProfitMinus3) + ' ₽';
-                summaryExtraPrice.textContent = formatNumber(extraPrice) + ' ₽';
-                
-                // Обновление заголовка
-                calcTitle.textContent = `📊 Расчёт для ${formatNumber(tonnage)} тонн:`;
-                
-                // Показываем результат
-                resultDiv.classList.add('active');
-            }
-            
-            calculateBtn.addEventListener('click', calculate);
-            
-            tonnageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    calculate();
-                }
-            });
-            
-            // Авторасчет при изменении параметров, если уже есть результат
-            [pricePerTonInput, surchargeInput, profitInput].forEach(input => {
-                input.addEventListener('change', function() {
-                    if (tonnageInput.value && parseFloat(tonnageInput.value) > 0) {
-                        calculate();
-                    }
-                });
-            });
-            
-            // Пример расчета при загрузке
-            tonnageInput.value = "2.5";
-            calculate();
-        });
-    </script>
+    <div class="formula-section">
+      <div class="formula-line">
+        <span class="label">Себестоимость</span>
+        <span class="value" id="fCost">—</span>
+      </div>
+      <div class="formula-line">
+        <span class="label" id="fPriceLabel">Итоговая цена (+21%)</span>
+        <span class="value" id="fPrice">—</span>
+      </div>
+      <div class="formula-line">
+        <span class="label" id="fProfitLabel">Чистая прибыль (+21%)</span>
+        <span class="value" id="fProfit">—</span>
+      </div>
+      <div class="formula-line">
+        <span class="label">Цена с +16.09% к итоговой</span>
+        <span class="value" id="fExtra">—</span>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="summary-row">
+        <span class="s-label">Себестоимость</span>
+        <span class="s-val white" id="sCost">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label" id="sPriceLabel">Итоговая цена (+21%)</span>
+        <span class="s-val green" id="sPrice">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label" id="sProfitLabel">Чистая прибыль (+21%)</span>
+        <span class="s-val green" id="sProfit">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">Чистая прибыль (-3%)</span>
+        <span class="s-val orange" id="sProfit3">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">Цена с +16.09% к итоговой</span>
+        <span class="s-val gold" id="sExtra">—</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const KEYS = {
+    pricePerTon: 'calc_pricePerTon',
+    surcharge:   'calc_surcharge',
+    profit:      'calc_profit',
+  };
+
+  const $ = id => document.getElementById(id);
+
+  // --- Load saved settings ---
+  function loadSaved() {
+    // Support Telegram WebApp params passed via URL hash or query
+    const params = new URLSearchParams(window.location.search);
+
+    for (const [field, key] of Object.entries(KEYS)) {
+      const urlVal = params.get(field);
+      const stored = localStorage.getItem(key);
+      if (urlVal !== null) {
+        $(field).value = urlVal;
+        localStorage.setItem(key, urlVal); // persist URL param
+      } else if (stored !== null) {
+        $(field).value = stored;
+      }
+    }
+  }
+
+  // --- Save on change ---
+  let saveTimer;
+  function onSettingsChange() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      for (const [field, key] of Object.entries(KEYS)) {
+        localStorage.setItem(key, $(field).value);
+      }
+      const badge = $('savedBadge');
+      badge.classList.add('show');
+      setTimeout(() => badge.classList.remove('show'), 1800);
+    }, 400);
+  }
+
+  ['pricePerTon', 'surcharge', 'profit'].forEach(id => {
+    $(id).addEventListener('input', onSettingsChange);
+  });
+
+  // Enter key on tons triggers calculate
+  $('tons').addEventListener('keydown', e => {
+    if (e.key === 'Enter') calculate();
+  });
+
+  // --- Format number Russian style ---
+  function fmt(n, decimals = 2) {
+    return n.toLocaleString('ru-RU', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    }) + ' ₽';
+  }
+
+  function fmtN(n, decimals = 2) {
+    return n.toLocaleString('ru-RU', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  }
+
+  // --- Calculate ---
+  function calculate() {
+    const price    = parseFloat($('pricePerTon').value) || 0;
+    const sur      = parseFloat($('surcharge').value)   || 0;
+    const profPct  = parseFloat($('profit').value)      || 0;
+    const tons     = parseFloat($('tons').value)        || 0;
+
+    // Core formulas (matching screenshot exactly)
+    const cost        = price * tons + sur;                          // себестоимость
+    const multiplier  = 1 + profPct / 100;
+    const totalPrice  = cost * multiplier;                           // итоговая цена
+    const netProfit   = totalPrice - cost;                           // чистая прибыль
+    const netProfit3  = netProfit * 0.97;                            // -3%
+    const extraMult   = 1.1609;
+    const extraPrice  = totalPrice * extraMult;                      // +16.09%
+
+    // Titles
+    const profStr = `+${fmtN(profPct, 2)}%`;
+
+    $('resultTitle').textContent = `Расчёт для ${fmtN(tons)} тонн`;
+
+    // Formula lines
+    $('fCost').textContent   = `(${fmtN(price, 2)} × ${fmtN(tons, 2)}) + ${fmtN(sur, 2)} = ${fmt(cost)}`;
+    $('fPriceLabel').textContent  = `Итоговая цена (${profStr})`;
+    $('fPrice').textContent  = `${fmtN(cost, 2)} × ${fmtN(multiplier, 2)} = ${fmt(totalPrice)}`;
+    $('fProfitLabel').textContent = `Чистая прибыль (${profStr})`;
+    $('fProfit').textContent = `${fmtN(totalPrice, 2)} − ${fmtN(cost, 2)} = ${fmt(netProfit)}`;
+    $('fExtra').textContent  = `${fmtN(totalPrice, 2)} × ${fmtN(extraMult, 4)} = ${fmt(extraPrice)}`;
+
+    // Summary
+    $('sCost').textContent     = fmt(cost);
+    $('sPriceLabel').textContent = `Итоговая цена (${profStr})`;
+    $('sPrice').textContent    = fmt(totalPrice);
+    $('sProfitLabel').textContent = `Чистая прибыль (${profStr})`;
+    $('sProfit').textContent   = fmt(netProfit);
+    $('sProfit3').textContent  = fmt(netProfit3);
+    $('sExtra').textContent    = fmt(extraPrice);
+
+    const card = $('resultCard');
+    card.classList.remove('visible');
+    void card.offsetWidth; // reflow for animation replay
+    card.classList.add('visible');
+
+    // Scroll to result
+    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+  }
+
+  // --- Telegram WebApp integration ---
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+  }
+
+  // --- Init ---
+  loadSaved();
+  calculate();
+</script>
 </body>
 </html>
