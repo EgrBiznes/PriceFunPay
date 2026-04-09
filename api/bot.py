@@ -1,22 +1,32 @@
-import telebot
+import os
+import requests
+from flask import Flask, request
 
-API_TOKEN = 'TELEGRAM_BOT_TOKEN'
-WEBHOOK_URL = 'YOUR_WEBHOOK_URL'
+app = Flask(__name__)
 
-bot = telebot.TeleBot(API_TOKEN)
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+WEBHOOK_URL = os.environ.get('WEBHOOK_URL')
 
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "Welcome to the bot! Use /help to see available commands.")
-
-# Set webhook
-@bot.route('/webhook', methods=['POST'])
+@app.route('/api/bot', methods=['POST'])
 def webhook():
-    json_str = request.get_data(as_text=True)
-    update = telebot.types.Update.de_json(json_str)
-    bot.process_new_updates([update])
+    update = request.get_json()
+    
+    if 'message' in update:
+        message = update['message']
+        if 'text' in message:
+            chat_id = message['chat']['id']
+            text = message['text']
+            
+            if text == '/start':
+                response_text = 'Привет! Это твой автоматический ответ на /start команду 👋'
+                send_message(chat_id, response_text)
+    
+    return 'OK', 200
+
+def send_message(chat_id, text):
+    url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage'
+    payload = {'chat_id': chat_id, 'text': text}
+    requests.post(url, json=payload)
 
 if __name__ == '__main__':
-    bot.remove_webhook()  # Remove existing webhook
-    bot.set_webhook(url=WEBHOOK_URL)  # Set new webhook
-    bot.polling()  # Start polling for messages
+    app.run()
