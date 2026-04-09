@@ -1,6 +1,6 @@
 import telebot
 
-API_TOKEN = 'YOUR_API_TOKEN'
+API_TOKEN = 'TELEGRAM_BOT_TOKEN'
 WEBHOOK_URL = 'YOUR_WEBHOOK_URL'
 
 bot = telebot.TeleBot(API_TOKEN)
