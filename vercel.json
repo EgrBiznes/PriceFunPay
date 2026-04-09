@@ -1,15 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/bot.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
+  "functions": {
+    "api/bot.py": {
+      "runtime": "python3.9"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/bot",
