@@ -442,56 +442,79 @@
 
 </div>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-  const KEYS = {
-    pricePerTon: 'calc_pricePerTon',
-    surcharge:   'calc_surcharge',
-    profit:      'calc_profit',
-  };
-
   const $ = id => document.getElementById(id);
 
-  // --- Load saved settings ---
-  function loadSaved() {
-    // Support Telegram WebApp params passed via URL hash or query
-    const params = new URLSearchParams(window.location.search);
+  // ===== TELEGRAM WEBAPP + USER ID =====
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
 
-    for (const [field, key] of Object.entries(KEYS)) {
-      const urlVal = params.get(field);
-      const stored = localStorage.getItem(key);
-      if (urlVal !== null) {
-        $(field).value = urlVal;
-        localStorage.setItem(key, urlVal); // persist URL param
-      } else if (stored !== null) {
-        $(field).value = stored;
-      }
+  // Получаем userId из Telegram, иначе fallback для браузера
+  const userId = tg?.initDataUnsafe?.user?.id || 'guest';
+  const STORAGE_KEY = `calc_user_${userId}`;
+
+  // ===== СТРУКТУРА ДАННЫХ ПОЛЬЗОВАТЕЛЯ =====
+  const defaultUserData = {
+    userId:      userId,
+    username:    tg?.initDataUnsafe?.user?.username || 'guest',
+    pricePerTon: 100,
+    surcharge:   72,
+    profit:      21,
+  };
+
+  // ===== ЗАГРУЗКА из localStorage =====
+  function loadUserData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? { ...defaultUserData, ...JSON.parse(raw) } : { ...defaultUserData };
+    } catch (e) {
+      return { ...defaultUserData };
     }
   }
 
-  // --- Save on change ---
+  // ===== СОХРАНЕНИЕ в localStorage =====
+  function updateUserData() {
+    const userData = {
+      userId,
+      username:    tg?.initDataUnsafe?.user?.username || 'guest',
+      pricePerTon: parseFloat($('pricePerTon').value) || defaultUserData.pricePerTon,
+      surcharge:   parseFloat($('surcharge').value)   || defaultUserData.surcharge,
+      profit:      parseFloat($('profit').value)      || defaultUserData.profit,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+
+    const badge = $('savedBadge');
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 1800);
+  }
+
+  // ===== ПРИМЕНИТЬ данные в поля =====
+  function applyUserData(data) {
+    $('pricePerTon').value = data.pricePerTon;
+    $('surcharge').value   = data.surcharge;
+    $('profit').value      = data.profit;
+  }
+
+  // ===== СЛУШАТЕЛИ изменений =====
   let saveTimer;
   function onSettingsChange() {
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      for (const [field, key] of Object.entries(KEYS)) {
-        localStorage.setItem(key, $(field).value);
-      }
-      const badge = $('savedBadge');
-      badge.classList.add('show');
-      setTimeout(() => badge.classList.remove('show'), 1800);
-    }, 400);
+    saveTimer = setTimeout(updateUserData, 400);
   }
 
   ['pricePerTon', 'surcharge', 'profit'].forEach(id => {
     $(id).addEventListener('input', onSettingsChange);
   });
 
-  // Enter key on tons triggers calculate
   $('tons').addEventListener('keydown', e => {
     if (e.key === 'Enter') calculate();
   });
 
-  // --- Format number Russian style ---
+  // ===== ФОРМАТИРОВАНИЕ чисел =====
   function fmt(n, decimals = 2) {
     return n.toLocaleString('ru-RU', {
       minimumFractionDigits: decimals,
@@ -506,61 +529,49 @@
     });
   }
 
-  // --- Calculate ---
+  // ===== РАСЧЁТ =====
   function calculate() {
-    const price    = parseFloat($('pricePerTon').value) || 0;
-    const sur      = parseFloat($('surcharge').value)   || 0;
-    const profPct  = parseFloat($('profit').value)      || 0;
-    const tons     = parseFloat($('tons').value)        || 0;
+    const price   = parseFloat($('pricePerTon').value) || 0;
+    const sur     = parseFloat($('surcharge').value)   || 0;
+    const profPct = parseFloat($('profit').value)      || 0;
+    const tons    = parseFloat($('tons').value)        || 0;
 
-    // Core formulas (matching screenshot exactly)
-    const cost        = price * tons + sur;                          // себестоимость
-    const multiplier  = 1 + profPct / 100;
-    const totalPrice  = cost * multiplier;                           // итоговая цена
-    const netProfit   = totalPrice - cost;                           // чистая прибыль
-    const netProfit3  = netProfit * 0.97;                            // -3%
-    const extraMult   = 1.1609;
-    const extraPrice  = totalPrice * extraMult;                      // +16.09%
+    const cost       = price * tons + sur;
+    const multiplier = 1 + profPct / 100;
+    const totalPrice = cost * multiplier;
+    const netProfit  = totalPrice - cost;
+    const netProfit3 = netProfit * 0.97;
+    const extraMult  = 1.1609;
+    const extraPrice = totalPrice * extraMult;
 
-    // Titles
     const profStr = `+${fmtN(profPct, 2)}%`;
 
-    $('resultTitle').textContent = `Расчёт для ${fmtN(tons)} тонн`;
-
-    // Formula lines
-    $('fCost').textContent   = `(${fmtN(price, 2)} × ${fmtN(tons, 2)}) + ${fmtN(sur, 2)} = ${fmt(cost)}`;
-    $('fPriceLabel').textContent  = `Итоговая цена (${profStr})`;
-    $('fPrice').textContent  = `${fmtN(cost, 2)} × ${fmtN(multiplier, 2)} = ${fmt(totalPrice)}`;
-    $('fProfitLabel').textContent = `Чистая прибыль (${profStr})`;
-    $('fProfit').textContent = `${fmtN(totalPrice, 2)} − ${fmtN(cost, 2)} = ${fmt(netProfit)}`;
-    $('fExtra').textContent  = `${fmtN(totalPrice, 2)} × ${fmtN(extraMult, 4)} = ${fmt(extraPrice)}`;
-
-    // Summary
-    $('sCost').textContent     = fmt(cost);
-    $('sPriceLabel').textContent = `Итоговая цена (${profStr})`;
-    $('sPrice').textContent    = fmt(totalPrice);
-    $('sProfitLabel').textContent = `Чистая прибыль (${profStr})`;
-    $('sProfit').textContent   = fmt(netProfit);
-    $('sProfit3').textContent  = fmt(netProfit3);
-    $('sExtra').textContent    = fmt(extraPrice);
+    $('resultTitle').textContent      = `Расчёт для ${fmtN(tons)} тонн`;
+    $('fCost').textContent            = `(${fmtN(price, 2)} × ${fmtN(tons, 2)}) + ${fmtN(sur, 2)} = ${fmt(cost)}`;
+    $('fPriceLabel').textContent      = `Итоговая цена (${profStr})`;
+    $('fPrice').textContent           = `${fmtN(cost, 2)} × ${fmtN(multiplier, 2)} = ${fmt(totalPrice)}`;
+    $('fProfitLabel').textContent     = `Чистая прибыль (${profStr})`;
+    $('fProfit').textContent          = `${fmtN(totalPrice, 2)} − ${fmtN(cost, 2)} = ${fmt(netProfit)}`;
+    $('fExtra').textContent           = `${fmtN(totalPrice, 2)} × ${fmtN(extraMult, 4)} = ${fmt(extraPrice)}`;
+    $('sCost').textContent            = fmt(cost);
+    $('sPriceLabel').textContent      = `Итоговая цена (${profStr})`;
+    $('sPrice').textContent           = fmt(totalPrice);
+    $('sProfitLabel').textContent     = `Чистая прибыль (${profStr})`;
+    $('sProfit').textContent          = fmt(netProfit);
+    $('sProfit3').textContent         = fmt(netProfit3);
+    $('sExtra').textContent           = fmt(extraPrice);
 
     const card = $('resultCard');
     card.classList.remove('visible');
-    void card.offsetWidth; // reflow for animation replay
+    void card.offsetWidth;
     card.classList.add('visible');
 
-    // Scroll to result
     setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
   }
 
-  // --- Telegram WebApp integration ---
-  if (window.Telegram?.WebApp) {
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
-  }
-
-  // --- Init ---
-  loadSaved();
+  // ===== ИНИЦИАЛИЗАЦИЯ =====
+  const userData = loadUserData();
+  applyUserData(userData);
   calculate();
 </script>
 </body>
