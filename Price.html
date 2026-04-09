@@ -458,61 +458,51 @@
   const STORAGE_KEY = `calc_user_${userId}`;
 
   // ===== СТРУКТУРА ДАННЫХ ПОЛЬЗОВАТЕЛЯ =====
-  const defaultUserData = {
-    userId:      userId,
+const defaultUserData = {
+  userId:      userId,
+  username:    tg?.initDataUnsafe?.user?.username || 'guest',
+  pricePerTon: 100,
+  surcharge:   72,
+  profit:      21,
+  tons:        2.5  // ✅ ДОБАВЬ ЭТО
+};
+
+// ===== СОХРАНЕНИЕ в localStorage =====
+function updateUserData() {
+  const userData = {
+    userId,
     username:    tg?.initDataUnsafe?.user?.username || 'guest',
-    pricePerTon: 100,
-    surcharge:   72,
-    profit:      21,
+    pricePerTon: parseFloat($('pricePerTon').value) || defaultUserData.pricePerTon,
+    surcharge:   parseFloat($('surcharge').value)   || defaultUserData.surcharge,
+    profit:      parseFloat($('profit').value)      || defaultUserData.profit,
+    tons:        parseFloat($('tons').value)        || defaultUserData.tons  // ✅ ДОБАВЬ ЭТО
   };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
 
-  // ===== ЗАГРУЗКА из localStorage =====
-  function loadUserData() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? { ...defaultUserData, ...JSON.parse(raw) } : { ...defaultUserData };
-    } catch (e) {
-      return { ...defaultUserData };
-    }
-  }
+  const badge = $('savedBadge');
+  badge.classList.add('show');
+  setTimeout(() => badge.classList.remove('show'), 1800);
+}
 
-  // ===== СОХРАНЕНИЕ в localStorage =====
-  function updateUserData() {
-    const userData = {
-      userId,
-      username:    tg?.initDataUnsafe?.user?.username || 'guest',
-      pricePerTon: parseFloat($('pricePerTon').value) || defaultUserData.pricePerTon,
-      surcharge:   parseFloat($('surcharge').value)   || defaultUserData.surcharge,
-      profit:      parseFloat($('profit').value)      || defaultUserData.profit,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+// ===== ПРИМЕНИТЬ данные в поля =====
+function applyUserData(data) {
+  $('pricePerTon').value = data.pricePerTon;
+  $('surcharge').value   = data.surcharge;
+  $('profit').value      = data.profit;
+  $('tons').value        = data.tons;  // ✅ ДОБАВЬ ЭТО
+}
 
-    const badge = $('savedBadge');
-    badge.classList.add('show');
-    setTimeout(() => badge.classList.remove('show'), 1800);
-  }
+// ===== СЛУШАТЕЛИ изменений =====
+let saveTimer;
+function onSettingsChange() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(updateUserData, 400);
+}
 
-  // ===== ПРИМЕНИТЬ данные в поля =====
-  function applyUserData(data) {
-    $('pricePerTon').value = data.pricePerTon;
-    $('surcharge').value   = data.surcharge;
-    $('profit').value      = data.profit;
-  }
-
-  // ===== СЛУШАТЕЛИ изменений =====
-  let saveTimer;
-  function onSettingsChange() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(updateUserData, 400);
-  }
-
-  ['pricePerTon', 'surcharge', 'profit'].forEach(id => {
-    $(id).addEventListener('input', onSettingsChange);
-  });
-
-  $('tons').addEventListener('keydown', e => {
-    if (e.key === 'Enter') calculate();
-  });
+// ✅ ОБНОВИ ЭТО - добавь 'tons'
+['pricePerTon', 'surcharge', 'profit', 'tons'].forEach(id => {
+  $(id).addEventListener('input', onSettingsChange);
+});
 
   // ===== ФОРМАТИРОВАНИЕ чисел =====
   function fmt(n, decimals = 2) {
