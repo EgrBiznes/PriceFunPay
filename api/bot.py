@@ -1,5 +1,7 @@
-from http.server import BaseHTTPRequestHandler
-import json, os, urllib.request, urllib.parse
+import json
+import urllib.request
+import urllib.parse
+import os
 
 TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
@@ -10,22 +12,22 @@ def send_message(chat_id, text):
           headers={'Content-Type': 'application/json'})
     urllib.request.urlopen(req)
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        length = int(self.headers.get('Content-Length', 0))
-        body = json.loads(self.rfile.read(length))
-
-        if 'message' in body:
-            msg = body['message']
-            if 'text' in msg:
-                chat_id = msg['chat']['id']
-                text = msg['text']
-                if text == '/start':
-                    send_message(chat_id, 'Привет! Это автоматический ответ на /start 👋')
-
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'OK')
-
-    def log_message(self, *args):
-        pass
+def handler(request, context):
+    # Vercel передаёт request как dict с телом
+    body = request.get('body') or {}
+    
+    if isinstance(body, str):
+        body = json.loads(body)
+    
+    if 'message' in body:
+        msg = body['message']
+        if 'text' in msg:
+            chat_id = msg['chat']['id']
+            text = msg['text']
+            if text == '/start':
+                send_message(chat_id, 'Привет! Это автоматический ответ на /start 👋')
+    
+    return {
+        'statusCode': 200,
+        'body': 'OK'
+    }
