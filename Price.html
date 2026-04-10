@@ -1,578 +1,650 @@
 <!DOCTYPE html>
+
+<html<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Калькулятор NFT</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0c10;
-    --surface: #13161d;
-    --surface2: #1c202b;
-    --border: rgba(255,255,255,0.07);
-    --accent: #00e5a0;
-    --accent2: #ff6b35;
-    --accent3: #4e9eff;
-    --text: #e8ecf4;
-    --muted: #636b80;
-    --gold: #ffc94d;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Калькулятор NFT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0c10;
+      --surface: #13161d;
+      --surface2: #1c202b;
+      --border: rgba(255,255,255,0.07);
+      --accent: #00e5a0;
+      --accent-hover: #00c488;
+      --accent2: #ff6b35;
+      --accent3: #4e9eff;
+      --text: #e8ecf4;
+      --muted: #636b80;
+      --gold: #ffc94d;
+    }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Manrope', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Manrope', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+    /* Анимированный грид */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,160,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,160,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-  .wrapper {
-    position: relative;
-    z-index: 1;
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-  }
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
 
-  /* Header */
-  .header {
-    text-align: center;
-    margin-bottom: 32px;
-    animation: fadeDown 0.6s ease both;
-  }
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      animation: fadeDown 0.6s ease both;
+    }
 
-  .header-icon {
-    font-size: 40px;
-    display: block;
-    margin-bottom: 8px;
-    filter: drop-shadow(0 0 16px rgba(0,229,160,0.5));
-  }
+    .header-icon {
+      font-size: 42px;
+      display: block;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 18px rgba(0,229,160,0.6));
+      animation: float 3s ease-in-out infinite;
+    }
 
-  .header h1 {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.3;
-    letter-spacing: -0.5px;
-  }
+    .header h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      letter-spacing: -0.8px;
+      margin-bottom: 8px;
+    }
 
-  .header p {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 6px;
-  }
+    .header p {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      opacity: 0.85;
+    }
 
-  /* Cards */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 16px;
-    animation: fadeUp 0.5s ease both;
-  }
+    /* Cards + Glass */
+    .card {
+      background: rgba(19, 22, 29, 0.78);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeUp 0.6s ease both;
+    }
 
-  .card:nth-child(2) { animation-delay: 0.1s; }
-  .card:nth-child(3) { animation-delay: 0.2s; }
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.2s; }
 
-  .card-title {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-  }
+    .card-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-  .fields-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+    .fields-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
 
-  .field-full {
-    grid-column: 1 / -1;
-  }
+    .field-full { grid-column: 1 / -1; }
 
-  .field label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-  .input-wrap {
-    position: relative;
-  }
+    .input-wrap {
+      position: relative;
+      transition: all 0.3s ease;
+    }
 
-  .input-wrap .unit {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-    color: var(--muted);
-    pointer-events: none;
-    font-weight: 600;
-  }
+    .input-wrap .unit {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: var(--muted);
+      pointer-events: none;
+      font-weight: 700;
+      opacity: 0.9;
+    }
 
-  input[type="number"] {
-    width: 100%;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-family: 'Manrope', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 12px 40px 12px 14px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    -moz-appearance: textfield;
-  }
+    input[type="number"] {
+      width: 100%;
+      background: rgba(28, 32, 43, 0.85);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      font-family: 'Manrope', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 14px 44px 14px 16px;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.3s;
+      -moz-appearance: textfield;
+    }
 
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-  input[type="number"]:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,229,160,0.12);
-  }
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0,229,160,0.15);
+      background: rgba(28,32,43,1);
+    }
 
-  /* Tons row */
-  .tons-row {
-    display: flex;
-    gap: 10px;
-    align-items: stretch;
-  }
+    input::placeholder { color: #3c4458; font-weight: 400; }
 
-  .tons-row input {
-    flex: 1;
-    font-size: 18px;
-  }
+    /* Tons row */
+    .tons-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
 
-  .btn-calc {
-    background: linear-gradient(135deg, var(--accent) 0%, #00c488 100%);
-    color: #000;
-    border: none;
-    border-radius: 12px;
-    font-family: 'Unbounded', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 0 20px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 4px 20px rgba(0,229,160,0.35);
-    letter-spacing: -0.3px;
-  }
+    .tons-row input {
+      flex: 1;
+      font-size: 20px;
+      color: var(--text);
+      font-weight: 700;
+    }
 
-  .btn-calc:active {
-    transform: scale(0.96);
-    box-shadow: 0 2px 10px rgba(0,229,160,0.2);
-  }
+    /* Calc Button */
+    .btn-calc {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+      color: #000;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 0 22px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+      box-shadow: 0 6px 20px rgba(0,229,160,0.35);
+      letter-spacing: -0.4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+    }
 
-  .hint {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 8px;
-    text-align: center;
-  }
+    .btn-calc:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+      box-shadow: 0 10px 28px rgba(0,229,160,0.45);
+    }
 
-  /* Result card */
-  .result-card {
-    background: var(--surface);
-    border: 1px solid rgba(0,229,160,0.15);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 16px;
-    display: none;
-    animation: fadeUp 0.4s ease both;
-  }
+    .btn-calc:active { transform: scale(0.96); }
 
-  .result-card.visible { display: block; }
+    /* Hint */
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 12px;
+      text-align: center;
+      opacity: 0.75;
+    }
 
-  .result-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
+    /* Result Card */
+    .result-card {
+      background: linear-gradient(180deg, rgba(19,22,29,0.88), rgba(19,22,29,0.96));
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(0,229,160,0.2);
+      border-radius: 24px;
+      padding: 26px;
+      margin-bottom: 16px;
+      display: none;
+      animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
 
-  .result-header .icon { font-size: 22px; }
+    .result-card.visible {
+      display: block;
+      box-shadow: 0 0 60px rgba(0,229,160,0.18);
+      animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1), glowPulse 2.5s ease-in-out 0.5s;
+    }
 
-  .result-header h2 {
-    font-family: 'Unbounded', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--accent);
-  }
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
 
-  /* Formula lines */
-  .formula-section {
-    background: var(--surface2);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 14px;
-  }
+    .result-header .icon {
+      font-size: 26px;
+      filter: drop-shadow(0 0 12px rgba(0,229,160,0.5));
+    }
 
-  .formula-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    line-height: 1.5;
-  }
+    .result-header h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text) 0%, #cfd9e6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.6px;
+    }
 
-  .formula-line:last-child { border-bottom: none; }
+    /* Formula Section */
+    .formula-section {
+      background: rgba(28, 32, 43, 0.9);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
 
-  .formula-line .label {
-    color: var(--muted);
-    font-size: 12px;
-  }
+    .formula-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 14px;
+      line-height: 1.5;
+      border-bottom: 1px dashed rgba(255,255,255,0.06);
+    }
 
-  .formula-line .value {
-    font-weight: 700;
-    text-align: right;
-    white-space: nowrap;
-  }
+    .formula-line:last-child { border-bottom: none; }
 
-  /* Summary table */
-  .summary {
-    border-left: 3px solid var(--accent);
-    border-radius: 0 12px 12px 0;
-    background: rgba(0,229,160,0.04);
-    overflow: hidden;
-  }
+    .formula-line .label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      flex: 0 0 45%;
+    }
 
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 11px 14px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-  }
+    .formula-line .value {
+      text-align: right;
+      flex: 1;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-  .summary-row:last-child { border-bottom: none; }
+    /* Summary */
+    .summary {
+      border-left: 3px solid var(--accent);
+      border-radius: 0 14px 14px 0;
+      background: rgba(0,229,160,0.05);
+      overflow: hidden;
+    }
 
-  .summary-row .s-label { color: var(--muted); font-size: 12px; }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 14px;
+      transition: background 0.2s;
+    }
 
-  .summary-row .s-val {
-    font-weight: 700;
-    font-size: 15px;
-  }
+    .summary-row:hover {
+      background: rgba(255,255,255,0.03);
+    }
 
-  .s-val.green { color: var(--accent); }
-  .s-val.orange { color: var(--accent2); }
-  .s-val.gold { color: var(--gold); }
-  .s-val.blue { color: var(--accent3); }
-  .s-val.white { color: var(--text); }
+    .summary-row:last-child { border-bottom: none; }
 
-  /* Saved indicator */
-  .saved-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    color: var(--accent);
-    font-weight: 600;
-    margin-top: 10px;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .saved-badge.show { opacity: 1; }
+    .summary-row .s-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
 
-  /* Animations */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+    .summary-row .s-val {
+      font-weight: 700;
+      font-size: 16px;
+      font-family: 'Unbounded', sans-serif;
+    }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+    .s-val.green { color: var(--accent); text-shadow: 0 0 10px rgba(0,229,160,0.3); }
+    .s-val.orange { color: var(--accent2); text-shadow: 0 0 10px rgba(255,107,53,0.3); }
+    .s-val.gold { color: var(--gold); text-shadow: 0 0 10px rgba(255,201,77,0.3); }
+    .s-val.blue { color: var(--accent3); text-shadow: 0 0 10px rgba(78,158,255,0.3); }
+    .s-val.white { color: var(--text); }
 
-  /* Glow pulse on result */
-  @keyframes glowPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,160,0); }
-    50% { box-shadow: 0 0 20px 4px rgba(0,229,160,0.15); }
-  }
+    /* Saved Indicator */
+    .saved-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 12px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.3s, transform 0.3s;
+      font-family: 'Unbounded', sans-serif;
+    }
+    .saved-badge.show {
+      opacity: 1;
+      transform: translateY(0);
+      animation: pulse 1.2s ease-in-out 1;
+    }
 
-  .result-card.visible {
-    animation: fadeUp 0.4s ease both, glowPulse 2s ease 0.4s;
-  }
+    /* Animations */
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(0,229,160,0.12); }
+      50% { box-shadow: 0 0 50px rgba(0,229,160,0.35); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
 
-  /* Responsive tweaks */
-  @media (max-width: 360px) {
-    .header h1 { font-size: 17px; }
-    .fields-grid { grid-template-columns: 1fr; }
-    .field-full { grid-column: 1; }
-  }
-</style>
+    /* Responsive */
+    @media (max-width: 380px) {
+      .header h1 { font-size: 21px; }
+      .fields-grid { grid-template-columns: 1fr; }
+      .field-full { grid-column: 1; }
+      .result-card { padding: 20px; }
+    }
+  </style>
 </head>
 <body>
-<div class="wrapper">
+  <div class="wrapper">
+    <!-- Header -->
+    <div class="header">
+      <span class="header-icon">💎</span>
+      <h1>NFT Calculator</h1>
+      <p>Настройки сохраняются автоматически • Telegram Web App</p>
+    </div>
 
-  <div class="header">
-    <span class="header-icon">💰</span>
-    <h1>Калькулятор<br>NFT</h1>
-    <p>Настройки сохраняются автоматически</p>
-  </div>
-
-  <!-- Settings card -->
-  <div class="card">
-    <div class="card-title">⚙️ Параметры расчёта</div>
-    <div class="fields-grid">
-      <div class="field">
-        <label>Цена за тонну</label>
-        <div class="input-wrap">
-          <input type="number" id="pricePerTon" value="100" min="0" step="0.01" placeholder="100">
-          <span class="unit">₽/т</span>
+    <!-- Settings Card -->
+    <div class="card">
+      <div class="card-title">⚙️ Параметры расчета</div>
+      <div class="fields-grid">
+        <div class="field">
+          <label>Цена за тонну</label>
+          <div class="input-wrap">
+            <input type="number" id="pricePerTon" value="100" min="0" step="0.01" placeholder="0.00">
+            <span class="unit">₽/т</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Надбавка</label>
+          <div class="input-wrap">
+            <input type="number" id="surcharge" value="72" min="0" step="0.01" placeholder="0">
+            <span class="unit">₽</span>
+          </div>
+        </div>
+        <div class="field field-full">
+          <label>Прибыль</label>
+          <div class="input-wrap">
+            <input type="number" id="profit" value="21" min="0" step="0.1" placeholder="0%">
+            <span class="unit">%</span>
+          </div>
         </div>
       </div>
-      <div class="field">
-        <label>Надбавки</label>
-        <div class="input-wrap">
-          <input type="number" id="surcharge" value="72" min="0" step="0.01" placeholder="72">
-          <span class="unit">₽</span>
+      <span class="saved-badge" id="savedBadge"><span>✓</span> Сохранено</span>
+    </div>
+
+    <!-- Tons Card -->
+    <div class="card">
+      <div class="card-title">📦 Количество, тонн</div>
+      <div class="tons-row">
+        <div class="input-wrap" style="flex:1">
+          <input type="number" id="tons" value="2.5" min="0" step="0.01" placeholder="1000">
+          <span class="unit">т</span>
+        </div>
+        <button class="btn-calc" id="calcBtn">Рассчитать</button>
+      </div>
+      <div class="hint">Поддержка дробных значений: 2.28, 3.95, 10.5 и т.д.</div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-card" id="resultCard">
+      <div class="result-header">
+        <span class="icon">📊</span>
+        <h2 id="resultTitle">Расчёт для 2.50 тонн</h2>
+      </div>
+
+      <div class="formula-section">
+        <div class="formula-line">
+          <span class="label">Итоговая цена с прибылью (21%)</span>
+          <span class="value" id="fPrice">—</span>
+        </div>
+        <div class="formula-line">
+          <span class="label">Чистая прибыль</span>
+          <span class="value" id="fProfit">—</span>
+        </div>
+        <div class="formula-line">
+          <span class="label">Цена с +16.09% к итогу</span>
+          <span class="value" id="fExtra">—</span>
         </div>
       </div>
-      <div class="field field-full">
-        <label>Прибыль</label>
-        <div class="input-wrap">
-          <input type="number" id="profit" value="20" min="0" step="0.01" placeholder="21">
-          <span class="unit">%</span>
+
+      <div class="summary">
+        <div class="summary-row">
+          <span class="s-label">Себестоимость</span>
+          <span class="s-val white" id="sCost">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="s-label">Итоговая цена (+21%)</span>
+          <span class="s-val green" id="sPrice">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="s-label">Чистая прибыль</span>
+          <span class="s-val green" id="sProfit">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="s-label">С учетом -3%</span>
+          <span class="s-val orange" id="sProfit3">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="s-label">С +16.09% к итогу</span>
+          <span class="s-val gold" id="sExtra">—</span>
         </div>
       </div>
     </div>
-    <span class="saved-badge" id="savedBadge">✓ Сохранено</span>
   </div>
 
-  <!-- Tons card -->
-  <div class="card">
-    <div class="card-title">📦 Количество тонн</div>
-    <div class="tons-row">
-      <div class="input-wrap" style="flex:1">
-        <input type="number" id="tons" value="2.5" min="0" step="0.01" placeholder="1000">
-        <span class="unit">т</span>
-      </div>
-      <button class="btn-calc" onclick="calculate()">Рассчитать</button>
-    </div>
-    <div class="hint">Можно вводить дробные значения (например: 2.28, 3.95, 10.5)</div>
-  </div>
+  <!-- Telegram Web App -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
 
-  <!-- Result -->
-  <div class="result-card" id="resultCard">
-    <div class="result-header">
-      <span class="icon">📊</span>
-      <h2 id="resultTitle">Расчёт для 1 000.00 тонн</h2>
-    </div>
-
-    <div class="formula-section">
-      <div class="formula-line">
-        <span class="label">Себестоимость</span>
-        <span class="value" id="fCost">—</span>
-      </div>
-      <div class="formula-line">
-        <span class="label" id="fPriceLabel">Итоговая цена (+21%)</span>
-        <span class="value" id="fPrice">—</span>
-      </div>
-      <div class="formula-line">
-        <span class="label" id="fProfitLabel">Чистая прибыль (+21%)</span>
-        <span class="value" id="fProfit">—</span>
-      </div>
-      <div class="formula-line">
-        <span class="label">Цена с +16.09% к итоговой</span>
-        <span class="value" id="fExtra">—</span>
-      </div>
-    </div>
-
-    <div class="summary">
-      <div class="summary-row">
-        <span class="s-label">Себестоимость</span>
-        <span class="s-val white" id="sCost">—</span>
-      </div>
-      <div class="summary-row">
-        <span class="s-label" id="sPriceLabel">Итоговая цена (+21%)</span>
-        <span class="s-val green" id="sPrice">—</span>
-      </div>
-      <div class="summary-row">
-        <span class="s-label" id="sProfitLabel">Чистая прибыль (+21%)</span>
-        <span class="s-val green" id="sProfit">—</span>
-      </div>
-      <div class="summary-row">
-        <span class="s-label">Чистая прибыль (-3%)</span>
-        <span class="s-val orange" id="sProfit3">—</span>
-      </div>
-      <div class="summary-row">
-        <span class="s-label">Цена с +16.09% к итоговой</span>
-        <span class="s-val gold" id="sExtra">—</span>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script>
-  const $ = id => document.getElementById(id);
-
-  // ===== TELEGRAM WEBAPP + USER ID =====
-  const tg = window.Telegram?.WebApp;
-  if (tg) {
-    tg.ready();
-    tg.expand();
-  }
-
-  // Получаем userId из Telegram, иначе fallback для браузера
-  const userId = tg?.initDataUnsafe?.user?.id || 'guest';
-  const STORAGE_KEY = `calc_user_${userId}`;
-
-  // ===== СТРУКТУРА ДАННЫХ ПОЛЬЗОВАТЕЛЯ =====
-  const defaultUserData = {
-    userId:      userId,
-    username:    tg?.initDataUnsafe?.user?.username || 'guest',
-    pricePerTon: 100,
-    surcharge:   72,
-    profit:      21,
-  };
-
-  // ===== ЗАГРУЗКА из localStorage =====
-  function loadUserData() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? { ...defaultUserData, ...JSON.parse(raw) } : { ...defaultUserData };
-    } catch (e) {
-      return { ...defaultUserData };
+    // ===== Telegram Init =====
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      tg.setHeaderColor('#0a0c10');
+      tg.setBackgroundColor('#0a0c10');
     }
-  }
 
-  // ===== СОХРАНЕНИЕ в localStorage =====
-  function updateUserData() {
-    const userData = {
-      userId,
-      username:    tg?.initDataUnsafe?.user?.username || 'guest',
-      pricePerTon: parseFloat($('pricePerTon').value) || defaultUserData.pricePerTon,
-      surcharge:   parseFloat($('surcharge').value)   || defaultUserData.surcharge,
-      profit:      parseFloat($('profit').value)      || defaultUserData.profit,
+    // Context: get userId from Telegram or fallback
+    const userId = tg?.initDataUnsafe?.user?.id || 'guest_' + Math.random().toString(36).slice(2, 9);
+    const STORAGE_KEY = `calc_user_${userId}`;
+
+    // ===== Default Data =====
+    const defaultUserData = {
+      pricePerTon: 100,
+      surcharge:   72,
+      profit:      21,
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
 
-    const badge = $('savedBadge');
-    badge.classList.add('show');
-    setTimeout(() => badge.classList.remove('show'), 1800);
-  }
+    // ===== Load & Apply =====
+    function loadUserData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? { ...defaultUserData, ...JSON.parse(raw) } : { ...defaultUserData };
+      } catch (e) {
+        return { ...defaultUserData };
+      }
+    }
 
-  // ===== ПРИМЕНИТЬ данные в поля =====
-  function applyUserData(data) {
-    $('pricePerTon').value = data.pricePerTon;
-    $('surcharge').value   = data.surcharge;
-    $('profit').value      = data.profit;
-  }
+    function applyUserData(data) {
+      $('pricePerTon').value = data.pricePerTon;
+      $('surcharge').value   = data.surcharge;
+      $('profit').value      = data.profit;
+    }
 
-  // ===== СЛУШАТЕЛИ изменений =====
-  let saveTimer;
-  function onSettingsChange() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(updateUserData, 400);
-  }
+    function updateUserData() {
+      const data = {
+        pricePerTon: parseFloat($('pricePerTon').value) || defaultUserData.pricePerTon,
+        surcharge:   parseFloat($('surcharge').value)   || defaultUserData.surcharge,
+        profit:      parseFloat($('profit').value)      || defaultUserData.profit,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      
+      // Show Save indicator
+      const badge = $('savedBadge');
+      badge.classList.add('show');
+      setTimeout(() => badge.classList.remove('show'), 1800);
+    }
 
-  ['pricePerTon', 'surcharge', 'profit'].forEach(id => {
-    $(id).addEventListener('input', onSettingsChange);
-  });
+    // Auto-save on input changes
+    let saveTimer;
+    function onSettingsChange() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(updateUserData, 400);
+    }
 
-  $('tons').addEventListener('keydown', e => {
-    if (e.key === 'Enter') calculate();
-  });
-
-  // ===== ФОРМАТИРОВАНИЕ чисел =====
-  function fmt(n, decimals = 2) {
-    return n.toLocaleString('ru-RU', {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
-    }) + ' ₽';
-  }
-
-  function fmtN(n, decimals = 2) {
-    return n.toLocaleString('ru-RU', {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
+    // Add listeners to inputs
+    ['pricePerTon', 'surcharge', 'profit'].forEach(id => {
+      $(id).addEventListener('input', onSettingsChange);
     });
-  }
 
-  // ===== РАСЧЁТ =====
-  function calculate() {
-    const price   = parseFloat($('pricePerTon').value) || 0;
-    const sur     = parseFloat($('surcharge').value)   || 0;
-    const profPct = parseFloat($('profit').value)      || 0;
-    const tons    = parseFloat($('tons').value)        || 0;
+    // Bold Enter to calculate
+    $('tons').addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
 
-    const cost       = price * tons + sur;
-    const multiplier = 1 + profPct / 100;
-    const totalPrice = cost * multiplier;
-    const netProfit  = totalPrice - cost;
-    const netProfit3 = netProfit * 0.97;
-    const extraMult  = 1.1609;
-    const extraPrice = totalPrice * extraMult;
+    // Add click listener on button
+    $('calcBtn').addEventListener('click', () => calculate());
 
-    const profStr = `+${fmtN(profPct, 2)}%`;
+    // ===== Formatting =====
+    function fmtMoney(n, decimals = 2) {
+      return n.toLocaleString('ru-RU', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }) + ' ₽';
+    }
 
-    $('resultTitle').textContent      = `Расчёт для ${fmtN(tons)} тонн`;
-    $('fCost').textContent            = `(${fmtN(price, 2)} × ${fmtN(tons, 2)}) + ${fmtN(sur, 2)} = ${fmt(cost)}`;
-    $('fPriceLabel').textContent      = `Итоговая цена (${profStr})`;
-    $('fPrice').textContent           = `${fmtN(cost, 2)} × ${fmtN(multiplier, 2)} = ${fmt(totalPrice)}`;
-    $('fProfitLabel').textContent     = `Чистая прибыль (${profStr})`;
-    $('fProfit').textContent          = `${fmtN(totalPrice, 2)} − ${fmtN(cost, 2)} = ${fmt(netProfit)}`;
-    $('fExtra').textContent           = `${fmtN(totalPrice, 2)} × ${fmtN(extraMult, 4)} = ${fmt(extraPrice)}`;
-    $('sCost').textContent            = fmt(cost);
-    $('sPriceLabel').textContent      = `Итоговая цена (${profStr})`;
-    $('sPrice').textContent           = fmt(totalPrice);
-    $('sProfitLabel').textContent     = `Чистая прибыль (${profStr})`;
-    $('sProfit').textContent          = fmt(netProfit);
-    $('sProfit3').textContent         = fmt(netProfit3);
-    $('sExtra').textContent           = fmt(extraPrice);
+    function fmtN(n, decimals = 2) {
+      return n.toLocaleString('ru-RU', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
 
-    const card = $('resultCard');
-    card.classList.remove('visible');
-    void card.offsetWidth;
-    card.classList.add('visible');
+    // ===== CORE CALCULATION =====
+    function calculate() {
+      const price   = parseFloat($('pricePerTon').value) || 0;
+      const sur     = parseFloat($('surcharge').value)   || 0;
+      const profPct = parseFloat($('profit').value)      || 0;
+      const tons    = parseFloat($('tons').value)        || 0;
 
-    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
-  }
+      if (tons <= 0) {
+        alert('Введите положительное количество тонн');
+        return;
+      }
 
-  // ===== ИНИЦИАЛИЗАЦИЯ =====
-  const userData = loadUserData();
-  applyUserData(userData);
-  calculate();
-</script>
+      // основные расчёты
+      const cost       = (price * tons) + sur;
+      const multiplier = 1 + profPct / 100;
+      const totalPrice = cost * multiplier;
+      const netProfit  = totalPrice - cost;
+      const netProfit3 = netProfit * 0.97;
+      const extraMult  = 1.1609;
+      const extraPrice = totalPrice * extraMult;
+
+      const profStr = `+${fmtN(profPct, 1)}%`;
+
+      // Title
+      $('resultTitle').textContent = `Расчёт для ${fmtN(tons)} тонн`;
+
+      // Formula section (lines)
+      $('fPrice').textContent = `${fmtN(cost)} × ${fmtN(multiplier)} = ${fmtMoney(totalPrice)}`;
+      $('fProfit').textContent = `${fmtN(totalPrice)} − ${fmtN(cost)} = ${fmtMoney(netProfit)}`;
+      $('fExtra').textContent = `${fmtN(totalPrice)} × 1.1609 = ${fmtMoney(extraPrice)}`;
+
+      // Summary (table)
+      $('sCost').textContent = fmtMoney(cost);
+      $('sPrice').textContent = fmtMoney(totalPrice);
+      $('sProfit').textContent = fmtMoney(netProfit);
+      $('sProfit3').textContent = fmtMoney(netProfit3);
+      $('sExtra').textContent = fmtMoney(extraPrice);
+
+      // Show result with animation
+      const card = $('resultCard');
+      card.classList.remove('visible');
+      void card.offsetWidth; // force reflow
+      card.classList.add('visible');
+
+      // Auto-scroll to result after animation
+      setTimeout(() => {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 400);
+    }
+
+    // ===== INIT =====
+    const userData = loadUserData();
+    applyUserData(userData);
+    calculate();
+  </script>
 </body>
 </html>
