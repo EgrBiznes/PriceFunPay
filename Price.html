@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-
-<html<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Калькулятор NFT</title>
+  <title>Калькулятор NFT — точный расчёт</title>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -407,14 +405,13 @@
 </head>
 <body>
   <div class="wrapper">
-    <!-- Header -->
     <div class="header">
       <span class="header-icon">💎</span>
       <h1>NFT Calculator</h1>
       <p>Настройки сохраняются автоматически • Telegram Web App</p>
     </div>
 
-    <!-- Settings Card -->
+    <!-- Параметры -->
     <div class="card">
       <div class="card-title">⚙️ Параметры расчета</div>
       <div class="fields-grid">
@@ -435,7 +432,7 @@
         <div class="field field-full">
           <label>Прибыль</label>
           <div class="input-wrap">
-            <input type="number" id="profit" value="21" min="0" step="0.1" placeholder="0%">
+            <input type="number" id="profit" value="20" min="0" step="0.1" placeholder="0%">
             <span class="unit">%</span>
           </div>
         </div>
@@ -443,7 +440,7 @@
       <span class="saved-badge" id="savedBadge"><span>✓</span> Сохранено</span>
     </div>
 
-    <!-- Tons Card -->
+    <!-- Количество тонн -->
     <div class="card">
       <div class="card-title">📦 Количество, тонн</div>
       <div class="tons-row">
@@ -456,7 +453,7 @@
       <div class="hint">Поддержка дробных значений: 2.28, 3.95, 10.5 и т.д.</div>
     </div>
 
-    <!-- Result -->
+    <!-- Результат -->
     <div class="result-card" id="resultCard">
       <div class="result-header">
         <span class="icon">📊</span>
@@ -464,8 +461,8 @@
       </div>
 
       <div class="formula-section">
-        <div class="formula-line">
-          <span class="label">Итоговая цена с прибылью (21%)</span>
+        <div class="formula-line" id="formulaPriceLine">
+          <span class="label" id="labelPriceWithProfit">Итоговая цена с прибылью (20%)</span>
           <span class="value" id="fPrice">—</span>
         </div>
         <div class="formula-line">
@@ -484,7 +481,7 @@
           <span class="s-val white" id="sCost">—</span>
         </div>
         <div class="summary-row">
-          <span class="s-label">Итоговая цена (+21%)</span>
+          <span class="s-label" id="summaryPriceLabel">Итоговая цена (+20%)</span>
           <span class="s-val green" id="sPrice">—</span>
         </div>
         <div class="summary-row">
@@ -503,12 +500,11 @@
     </div>
   </div>
 
-  <!-- Telegram Web App -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     const $ = id => document.getElementById(id);
 
-    // ===== Telegram Init =====
+    // Telegram Web App
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.ready();
@@ -517,18 +513,17 @@
       tg.setBackgroundColor('#0a0c10');
     }
 
-    // Context: get userId from Telegram or fallback
+    // Уникальный ключ для пользователя
     const userId = tg?.initDataUnsafe?.user?.id || 'guest_' + Math.random().toString(36).slice(2, 9);
     const STORAGE_KEY = `calc_user_${userId}`;
 
-    // ===== Default Data =====
     const defaultUserData = {
       pricePerTon: 100,
       surcharge:   72,
-      profit:      21,
+      profit:      20,        // изменено на 20% по умолчанию (визуально и по факту)
     };
 
-    // ===== Load & Apply =====
+    // Загрузка сохранённых данных
     function loadUserData() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -552,31 +547,28 @@
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       
-      // Show Save indicator
       const badge = $('savedBadge');
       badge.classList.add('show');
       setTimeout(() => badge.classList.remove('show'), 1800);
     }
 
-    // Auto-save on input changes
     let saveTimer;
     function onSettingsChange() {
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(updateUserData, 400);
+      saveTimer = setTimeout(() => {
+        updateUserData();
+        // Обновляем отображение после изменения полей (авто-расчёт, как в оригинале удобно)
+        calculate();
+      }, 400);
     }
 
-    // Add listeners to inputs
     ['pricePerTon', 'surcharge', 'profit'].forEach(id => {
       $(id).addEventListener('input', onSettingsChange);
     });
 
-    // Bold Enter to calculate
     $('tons').addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
-
-    // Add click listener on button
     $('calcBtn').addEventListener('click', () => calculate());
 
-    // ===== Formatting =====
     function fmtMoney(n, decimals = 2) {
       return n.toLocaleString('ru-RU', {
         minimumFractionDigits: decimals,
@@ -591,7 +583,33 @@
       });
     }
 
-    // ===== CORE CALCULATION =====
+    // Обновляет все текстовые метки в соответствии с текущим процентом прибыли
+    function updateProfitLabels(profitPercent) {
+      // Форматируем число (убираем лишние .0 если целое)
+      let displayPercent = profitPercent;
+      if (Number.isInteger(profitPercent)) {
+        displayPercent = profitPercent;
+      } else {
+        displayPercent = fmtN(profitPercent, 1);
+      }
+      
+      // Строка с процентом
+      const profitStr = `${displayPercent}%`;
+      
+      // Метка в формуле: "Итоговая цена с прибылью (20%)"
+      const labelFormula = $('labelPriceWithProfit');
+      if (labelFormula) {
+        labelFormula.textContent = `Итоговая цена с прибылью (${profitStr})`;
+      }
+      
+      // Метка в summary: "Итоговая цена (+20%)"
+      const summaryLabel = $('summaryPriceLabel');
+      if (summaryLabel) {
+        summaryLabel.textContent = `Итоговая цена (+${profitStr})`;
+      }
+    }
+
+    // Основной расчёт
     function calculate() {
       const price   = parseFloat($('pricePerTon').value) || 0;
       const sur     = parseFloat($('surcharge').value)   || 0;
@@ -603,7 +621,9 @@
         return;
       }
 
-      // основные расчёты
+      // Обновляем текстовые метки (20% / 21% / любое значение)
+      updateProfitLabels(profPct);
+
       const cost       = (price * tons) + sur;
       const multiplier = 1 + profPct / 100;
       const totalPrice = cost * multiplier;
@@ -612,38 +632,36 @@
       const extraMult  = 1.1609;
       const extraPrice = totalPrice * extraMult;
 
-      const profStr = `+${fmtN(profPct, 1)}%`;
-
-      // Title
+      // Заголовок
       $('resultTitle').textContent = `Расчёт для ${fmtN(tons)} тонн`;
 
-      // Formula section (lines)
-      $('fPrice').textContent = `${fmtN(cost)} × ${fmtN(multiplier)} = ${fmtMoney(totalPrice)}`;
-      $('fProfit').textContent = `${fmtN(totalPrice)} − ${fmtN(cost)} = ${fmtMoney(netProfit)}`;
-      $('fExtra').textContent = `${fmtN(totalPrice)} × 1.1609 = ${fmtMoney(extraPrice)}`;
+      // Строки формул
+      $('fPrice').textContent = `${fmtN(cost)} × ${fmtN(multiplier, 4)} = ${fmtMoney(totalPrice)}`;
+      $('fProfit').textContent = `${fmtMoney(totalPrice)} − ${fmtN(cost)} = ${fmtMoney(netProfit)}`;
+      $('fExtra').textContent = `${fmtMoney(totalPrice)} × 1.1609 = ${fmtMoney(extraPrice)}`;
 
-      // Summary (table)
+      // Блок summary
       $('sCost').textContent = fmtMoney(cost);
       $('sPrice').textContent = fmtMoney(totalPrice);
       $('sProfit').textContent = fmtMoney(netProfit);
       $('sProfit3').textContent = fmtMoney(netProfit3);
       $('sExtra').textContent = fmtMoney(extraPrice);
 
-      // Show result with animation
       const card = $('resultCard');
       card.classList.remove('visible');
-      void card.offsetWidth; // force reflow
+      void card.offsetWidth;
       card.classList.add('visible');
 
-      // Auto-scroll to result after animation
       setTimeout(() => {
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 400);
     }
 
-    // ===== INIT =====
+    // Инициализация и загрузка
     const userData = loadUserData();
     applyUserData(userData);
+    // После загрузки данных принудительно обновляем лейблы и делаем расчёт
+    updateProfitLabels(userData.profit);
     calculate();
   </script>
 </body>
